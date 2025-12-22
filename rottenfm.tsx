@@ -4,10 +4,11 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { Logger } from "@utils/Logger";
+import { relaunch } from "@utils/native";
 import definePlugin, { OptionType } from "@utils/types";
 import { Activity, ActivityAssets, ActivityButton } from "@vencord/discord-types";
 import { ActivityFlags, ActivityStatusDisplayType, ActivityType } from "@vencord/discord-types/enums";
-import { ApplicationAssetUtils, AuthenticationStore, FluxDispatcher, PresenceStore } from "@webpack/common";
+import { Alerts, ApplicationAssetUtils, AuthenticationStore, FluxDispatcher, PresenceStore } from "@webpack/common";
 
 interface TrackData {
     id: string;
@@ -236,6 +237,11 @@ export default definePlugin({
         this.isUpdating = true;
 
         try {
+            if (!await this.ensureNavidromeCsp()) {
+                setActivity(null);
+                return;
+            }
+
             if (settings.store.hideWithActivity) {
                 const activities = PresenceStore.getActivities(AuthenticationStore.getId()) ?? [];
                 if (activities.some((a: any) => a.application_id && a.application_id !== settings.store.discordAppId)) {
@@ -268,6 +274,44 @@ export default definePlugin({
         } finally {
             this.isUpdating = false;
         }
+    },
+
+    async ensureNavidromeCsp() {
+        if (IS_WEB) return true;
+
+        const { navidromeUrl } = settings.store;
+        if (!navidromeUrl) return false;
+
+        let origin: string;
+        try {
+            origin = new URL(navidromeUrl).origin;
+        } catch (err) {
+            logger.error("Invalid Navidrome URL", err);
+            return false;
+        }
+
+        if (this.cspAllowedOrigin === origin) return true;
+
+        if (await VencordNative.csp.isDomainAllowed(navidromeUrl, ["connect-src"])) {
+            this.cspAllowedOrigin = origin;
+            return true;
+        }
+
+        if (this.cspRequestedOrigin === origin) return false;
+        this.cspRequestedOrigin = origin;
+
+        const res = await VencordNative.csp.requestAddOverride(navidromeUrl, ["connect-src"], "RottenFM");
+        if (res === "ok") {
+            Alerts.show({
+                title: "Navidrome Access Allowed",
+                body: `${origin} has been added to the CSP allowlist. Please restart Discord to apply the change.`,
+                confirmText: "Restart now",
+                cancelText: "Later!",
+                onConfirm: relaunch,
+            });
+        }
+
+        return false;
     },
 
     async buildActivity(track: TrackData): Promise<Activity> {
