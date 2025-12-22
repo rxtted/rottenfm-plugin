@@ -3,12 +3,16 @@
 */
 
 import { definePluginSettings } from "@api/Settings";
+import { Card } from "@components/Card";
+import { Heading } from "@components/Heading";
+import { Margins } from "@components/margins";
+import { Paragraph } from "@components/Paragraph";
 import { Logger } from "@utils/Logger";
 import { relaunch } from "@utils/native";
 import definePlugin, { OptionType } from "@utils/types";
 import { Activity, ActivityAssets, ActivityButton } from "@vencord/discord-types";
 import { ActivityFlags, ActivityStatusDisplayType, ActivityType } from "@vencord/discord-types/enums";
-import { Alerts, ApplicationAssetUtils, AuthenticationStore, FluxDispatcher, PresenceStore } from "@webpack/common";
+import { Alerts, ApplicationAssetUtils, AuthenticationStore, Button, FluxDispatcher, PresenceStore } from "@webpack/common";
 
 interface TrackData {
     id: string;
@@ -219,6 +223,18 @@ export default definePlugin({
 
     settings,
 
+    settingsAboutComponent() {
+        return (
+            <Card>
+                <Heading tag="h5">Navidrome Access</Heading>
+                <Paragraph>Discord blocks direct HTTP requests unless the host is explicitly allowed.</Paragraph>
+                <Button size={Button.Sizes.SMALL} className={Margins.top8} onClick={() => this.requestNavidromeCsp()}>
+                    Allow Navidrome Host
+                </Button>
+            </Card>
+        );
+    },
+
     start() {
         this.currentTrackId = null;
         this.startedAt = null;
@@ -312,6 +328,48 @@ export default definePlugin({
         }
 
         return false;
+    },
+
+    async requestNavidromeCsp() {
+        if (IS_WEB) {
+            Alerts.show({
+                title: "Navidrome Access",
+                body: "CSP overrides are only available on desktop builds.",
+            });
+            return;
+        }
+
+        const { navidromeUrl } = settings.store;
+        if (!navidromeUrl) {
+            Alerts.show({
+                title: "Navidrome Access",
+                body: "Set your Navidrome URL in settings before allowing it.",
+            });
+            return;
+        }
+
+        let origin: string;
+        try {
+            origin = new URL(navidromeUrl).origin;
+        } catch (err) {
+            logger.error("Invalid Navidrome URL", err);
+            Alerts.show({
+                title: "Navidrome Access",
+                body: "Your Navidrome URL is invalid. Please fix it and try again.",
+            });
+            return;
+        }
+
+        if (await VencordNative.csp.isDomainAllowed(navidromeUrl, ["connect-src"])) {
+            Alerts.show({
+                title: "Navidrome Access",
+                body: `${origin} is already allowed. Restart Discord if requests still fail.`,
+            });
+            return;
+        }
+
+        this.cspRequestedOrigin = null;
+        await this.ensureNavidromeCsp();
     },
 
     async buildActivity(track: TrackData): Promise<Activity> {

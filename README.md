@@ -31,3 +31,10 @@ Reference: https://docs.vencord.dev/installing/custom-plugins/
 - Album art uses Last.fm and is always public.
 - If you set `hideWithListening`, the plugin will not override Spotify or other listening presences.
 - This plugin is meant for private use. It likely does not meet Vencord's official plugin rules.
+
+## FAQ
+
+**Why do I see a Content Security Policy error and no presence?**  
+Discord blocks direct HTTP requests unless the host is explicitly allowed. Use the "Allow Navidrome Host" button in the plugin settings and then fully restart Discord. If your setup still fails, ensure Navidrome is served over HTTPS (either directly or via a reverse proxy), as some CSP setups only permit secure origins.
+
+**Disclaimer:** Allowing a host relaxes Discord's Content Security Policy for that domain. Only allow domains you control or fully trust.
