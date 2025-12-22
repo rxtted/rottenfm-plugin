@@ -1,8 +1,8 @@
-# RottenFM (Vencord user plugin)
+# RottenFM (Navidrome/Subsonic API RPC plugin))
 
-Show your Navidrome now-playing as Discord Rich Presence, with album art and metadata from Last.fm.
+Show your Navidrome now-playing as Discord Rich Presence, with optional album art and metadata from Last.fm.
 
-This is an alternative to running a python app on your server for it, it also does not required access to a discord user token.
+This is an alternative to running a python app directly on your server, it also does not require access to a discord user token & does not fall under the bannable practice of "self-botting".
 
 ## Requirements
 
@@ -14,7 +14,7 @@ This is an alternative to running a python app on your server for it, it also do
 
 1. In your Vencord source tree, create `src/userplugins/` if it does not exist.
 2. Copy `rottenfm.tsx` into `src/userplugins/rottenfm.tsx`.
-3. Rebuild Vencord and restart Discord.
+3. Rebuild Vencord and restart Discord. (Follow the article referenced below if unsure how to build from source)
 
 Reference: https://docs.vencord.dev/installing/custom-plugins/
 
@@ -25,12 +25,15 @@ Reference: https://docs.vencord.dev/installing/custom-plugins/
 - Polling interval.
 - Last.fm API key (optional).
 - Activity text formatting and type.
+- Toggleable button that links to the song on lastfm
+- Custom secondary button that can link to any site.
 
 ## Notes
 
 - Album art uses Last.fm and is always public.
 - If you set `hideWithListening`, the plugin will not override Spotify or other listening presences.
-- This plugin is meant for private use. It likely does not meet Vencord's official plugin rules.
+- Buttons will only be visible to other users, and not yourself. This is an intentional product of discords own activity paths.
+
 
 ## FAQ
 
