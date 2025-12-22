@@ -1,4 +1,4 @@
-# RottenFM (Navidrome/Subsonic API RPC plugin))
+# RottenFM (Navidrome/Subsonic RPC plugin)
 
 Show your Navidrome now-playing as Discord Rich Presence, with optional album art and metadata from Last.fm.
 
