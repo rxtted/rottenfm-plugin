@@ -95,7 +95,7 @@ const settings = definePluginSettings({
     stateFormat: {
         type: OptionType.STRING,
         description: "State format string",
-        default: "{artist} · {album}",
+        default: "{artist}",
     },
     enableTimestamps: {
         type: OptionType.BOOLEAN,
