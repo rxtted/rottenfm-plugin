@@ -1,6 +1,6 @@
 /*
- * RottenFM - Navidrome Rich Presence for Vencord
- */
+     RottenFM - Navidrome Rich Presence for Discord
+*/
 
 import { definePluginSettings } from "@api/Settings";
 import { Logger } from "@utils/Logger";
