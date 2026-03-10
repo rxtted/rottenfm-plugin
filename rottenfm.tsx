@@ -218,8 +218,8 @@ async function getApplicationAsset(appId: string, key: string): Promise<string |
 
 export default definePlugin({
     name: "RottenFM",
-    description: "Show Navidrome now-playing as Discord Rich Presence (Last.fm artwork)",
-    authors: [{ name: "rottenfm" }],
+    description: "Show Navidrome now-playing as Discord Rich Presence",
+    authors: [{ name: "rxtted", id: 1105172844016570378n }],
 
     settings,
 
